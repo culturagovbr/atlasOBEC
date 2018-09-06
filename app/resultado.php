@@ -69,6 +69,7 @@
     ?>
 
 <?php endif; ?>
+
 <article class="results-article fadeInPage">
     <div class="results-content">
         <div class="container">
@@ -512,6 +513,14 @@
             </div>
 
             <div class="row">
+            
+                <form id="svgform" method="post" action="cgi/download_pdf.php">
+                    <input type="hidden" id="output_format" name="output_format" value="">
+                    <input type="hidden" id="data" name="data" value="">
+                    <input type="hidden" id="data_barras" name = "data_barras" value="">
+                    <input type="hidden" id="data_scc" name = "data_scc" value="">
+                    <input type="hidden" id="width_views" name ="width_views" value="">
+                </form>
 
                 <script>
                     function result_mobile() {
@@ -534,6 +543,7 @@
                         <div class="col-xs-4 col-btn"><button class="opt select" id="pdf">PDF</button></div>
                         <div class="col-xs-4 col-btn"><button class="opt select" id="csv">ODS</button></div>
                         <div class="col-xs-4 col-btn"><button class="opt select" id="img">IMG</button></div>
+<!--                        <div class="col-xs-3 col-btn"><button onClick="testeF();" class="opt select" id="img">TESTE</button></div>-->
                     </div>
 
                     <div class="row">
@@ -558,6 +568,7 @@
                         <div class="select-group hide" id="select-img">
                             <input type="text" onClick="this.select();" class="input-control url-input" value="<?php echo $downloadUrl.'&type=png#'.$eixo?>" readonly/><button class="button-control-down"></button>
                         </div>
+
                     </div>
                 </span>
 
@@ -604,6 +615,14 @@
     url['slc'] = "<?php echo $slc; ?>";
     <?php } ?>
     var pageTitle = "<?php echo strip_tags($text['title'])?>";
+
+    function testeF(){
+        document.location.href = 'repositorio.php';
+
+
+        window.history.pushState(null, null, 'repositorio.php');
+        parent.window.history.pushState(null, null, 'repositorio.php');
+    }
 
 </script>
 

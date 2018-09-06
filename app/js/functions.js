@@ -25,10 +25,12 @@ function UpdateWindowUrl(id, valor){
 }
 
 function changeDownloadURL(url, eixo){
+    url = url.match(/\?.*/gi)[0].replace('?', '')
+
     newURL = $('#select-pdf input').attr("value").replace(/download.php?.*/, "download.php?"+ url);
     $('#select-pdf input').attr("value", newURL)
-    vrv = parseInt(url.match(/var=[0-9]+/)[0].replace("var=", ''))
-    ocp = url.match(/ocp=[0-9]+/)[0].replace("ocp=", '')
+    vrv = parameters.var
+    ocp = parameters.ocp
 
     diretorio = ''
 
@@ -40,6 +42,7 @@ function changeDownloadURL(url, eixo){
             case '1': diretorio = 'servicos/'; break;
         }
     }
+
     if(eixo == "mercado"){
         switch(ocp){
             case '0': diretorio = 'setorial/'; break;
@@ -50,6 +53,7 @@ function changeDownloadURL(url, eixo){
     
     }
     
+
     $.get('./data/csv_files.json', function(data){
         var name_url;
         if(diretorio != '')
@@ -65,12 +69,94 @@ function changeDownloadURL(url, eixo){
     })
 }
 
+function sendViewsToDownload(output_format){
+    var svg = $('#view_box > svg').first()[0];
+    var svg_barras = $('#view_box_barras > svg')[0];
+    var svg_scc = $('#view_box_scc > svg')[0];
+    
+    // Extract the data as SVG text string
+    var svg_xml = (new XMLSerializer).serializeToString(svg);
+    var svg_barras_xml = (new XMLSerializer).serializeToString(svg_barras);
+    var svg_scc_xml = (new XMLSerializer).serializeToString(svg_scc);
+    // Submit the <FORM> to the server.
+    // The result will be an attachment file to download.
+    var form = document.getElementById("svgform");
+    console.log(form)
+    form['output_format'].value = 'pdf';
+    form['data'].value = svg_xml ;
+    form['data_barras'].value = svg_barras_xml;
+    form['data_scc'].value = svg_scc_xml;
+    form.submit();
+    
+}
+
 function ajustaAnos(keys) {
 	for(var i = 0; i < keys.length; i++) {
 		keys[i] = keys[i+1];
     }
     keys.pop();
 	return keys;
+}
+
+function getIdUF(uf) {
+	switch(uf) {
+        case "BR":
+			return 0;
+		case "RO":
+			return 11;
+        case "AC":
+            return 12;
+        case "AM":
+            return 13;
+        case "RR":
+            return 14;
+        case "PA":
+            return 15;
+        case "AP":
+            return 16;
+        case "TO":
+            return 17;
+        case "MA":
+            return 21;
+        case "PI":
+            return 22;
+        case "CE":
+            return 23;
+        case "RN":
+            return 24;
+        case "PB":
+            return 25;
+        case "PE":
+            return 26;
+        case "AL":
+            return 27;
+        case "SE":
+            return 28;
+        case "BA":
+            return 29;
+        case "MG":
+            return 31;
+        case "ES":
+            return 32;
+        case "RJ":
+            return 33;
+        case "SP":
+            return 35;
+        case "PR":
+            return 41;
+        case "SC":
+            return 42;
+        case "RS":
+            return 43;
+        case "MS":
+            return 50;
+        case "MT":
+            return 51;
+        case "GO":
+            return 52;
+        case "DF":
+            return 53;
+	}
 }
 
 function getNomeUF(idUF){
@@ -108,8 +194,6 @@ function getNomeUF(idUF){
         case 53: return "Distrito Federal";
     }
 }
-
-
 
 Array.prototype.remove = function() {
     var what, a = arguments, L = a.length, ax;
@@ -209,6 +293,19 @@ function removeDesags(iframe, ocp){
                 
             }
         })
+}
+
+function switchBreadCadOcp(slc){
+    if(parameters.eixo == 1){
+        if(slc == 0){
+            $("#bread-select-cad").attr("data-id", "cad");
+            $("#bread-select-cad").parent().find(".rotulo-bread").first().html("Setor");
+        } else {
+            $("#bread-select-cad").attr("data-id", "ocp");
+            $("#bread-select-cad").parent().find(".rotulo-bread").first().html("Ocupacação");
+        }
+        
+    }
 }
 
 function updateBreadUF(eixo, vrv){
@@ -368,23 +465,38 @@ function updateBreadcrumbSetores(cads){
     }
 }
 
+function setBreadcrumbsByUrl(){
+    $('.bread-select[data-id="cad"]').val(parameters.cad)
+    if(parameters.eixo == 1){
+        $(".bread-select[data-id=deg]").find("optgroup[value="+parameters.deg+"]").find("option[value="+(parameters.subdeg)+"]").prop('selected', true);
+    }
+    else{
+        $('.bread-select[data-id="deg"]').val(parameters.deg);
+    }
+    $(".bread-select[data-id='mec']").val(parameters.mec);
+}
+
 function updateDefaultOcupation(){
     $("select[data-id='ocp'] > option").each(function () {
         $(this).remove();
     });
-    if(!(url['var'] == 4 || url['var'] == 5 || url['var'] == 6)){
+
+    if(!(url['var'] == 4 || url['var'] == 5 || url['var'] == 6 || url['var'] == 9 && url['var'] == 11)){
         $(".bread-select[data-id='ocp']").append("<option value='3'>Todos</option>");
         $(".bread-select[data-id='ocp']").append("<option value='1'>Atividades Relacionadas</option>");
         $(".bread-select[data-id='ocp']").append("<option value='2'>Cultura</option>");
         $(".bread-select[data-id='ocp']").val(3)
         url['ocp'] = 3
 
-    } else {
+    } else if(url['var'] != 9 && url['var'] != 11) {
         url['ocp'] = 1
 
         $(".bread-select[data-id='ocp']").append("<option value='1'>Atividades Relacionadas</option>");
         $(".bread-select[data-id='ocp']").append("<option value='2'>Cultura</option>");
         $(".bread-select[data-id='ocp']").val(1)
+    } else {
+        url['ocp'] = 0
+        url['slc'] = 0
     }
 }
 
@@ -572,6 +684,14 @@ function setMaxFontSize(doc){
 
 }
 
+function normalizeValue(valor, sufixo){
+    if((parameters.eixo == 0 || parameters.eixo == 1) && sufixo == '%'){
+        return valor * 100;
+    } else {
+        return valor;
+    }
+}
+
 function getTextWidth(text, font) {
     var c = document.createElement("canvas");
     var ctx = c.getContext("2d");
@@ -591,20 +711,13 @@ function getTextWidth(text, font) {
 * Função que mexe no texto da barra de legenda do mapa.
 * Centraliza, muda o tamanho da fonte e formata o texto.
 */
-
-
 function formatBarTextMap(value, eixo, vrv, obj){
     var font_size = 9
     var description = PT_BR;
     sufixo = getDataVar(description, eixo, vrv).sufixo_valor;
     prefixo = getDataVar(description, eixo, vrv).prefixo_valor;
-    valor = value;
+    valor = normalizeValue(value, sufixo);
     switch(eixo) {
-        case 0:
-            if(vrv == 3) {
-                valor = valor*100;
-            }
-            break;
         case 1:
             if(vrv == 2){
                 valor *= 100;
@@ -624,36 +737,22 @@ function formatBarTextMap(value, eixo, vrv, obj){
 
 function formatTextVrv(value, eixo, vrv){
 
-    $.ajaxSetup({async: false});
     var string;
-    $.get("./data/pt-br.json")
-        .done(function(d){
-            variavel = d.var[eixo].filter(function(o){ return o.id == vrv})[0]
-            sufixo = variavel.sufixo_valor;
-            prefixo = variavel.prefixo_valor;
-            valor = value;
-            /*switch(eixo) {
-                case 0:
-                    break;
-                case 1:
-                    if(vrv === 2){
-                        valor *= 100;
-                    }
-                    break;
 
-            }*/
+    variavel = PT_BR.var[eixo].filter(function(o){ return o.id == vrv})[0]
+    sufixo = variavel.sufixo_valor;
+    prefixo = variavel.prefixo_valor;
+    valor = normalizeValue(value, sufixo);
 
-            if(eixo == 1 && url['var'] == 2)
-                string = prefixo+formatDecimalLimit(valor, 4)+sufixo;
-            else if(eixo == 1 && url['var'] == 9)
-                string = prefixo+formatDecimalLimit(valor, 4)+sufixo;
-            else if(eixo == 0 && url['var'] > 9)
-                string = prefixo+formatDecimalLimit(valor, 2)+sufixo;
-            else
-                string = prefixo+formatDecimalLimit(valor, 2)+sufixo;
+    if(eixo == 1 && url['var'] == 2)
+        string = prefixo+formatDecimalLimit(valor, 4)+sufixo;
+    else if(eixo == 1 && url['var'] == 9)
+        string = prefixo+formatDecimalLimit(valor, 4)+sufixo;
+    else if(eixo == 0 && url['var'] > 9)
+        string = prefixo+formatDecimalLimit(valor, 2)+sufixo;
+    else
+        string = prefixo+formatDecimalLimit(valor, 2)+sufixo;
 
-        });
-    $.ajaxSetup({async: true});
     return string;
 }
 
@@ -686,19 +785,12 @@ function formatTextTaxaVrv(value, eixo, vrv){
 * Formata uma string de valor de variável. Põe prefixo, sufixo e 2 casas decimais.
 */
 function formatStringVrv(value, eixo, vrv){
-    $.ajaxSetup({async: false})
     var string;
     var d = PT_BR
-    getDataVar(d, eixo, vrv)
     sufixo = getDataVar(d, eixo, vrv).sufixo_valor;
     prefixo = getDataVar(d, eixo, vrv).prefixo_valor;
-    valor = value;
+    valor = normalizeValue(value, sufixo);
     switch(eixo) {
-        case 0:
-            if(vrv == 3) {
-                valor = valor*100;
-            }
-            break;
         case 1:
             if(vrv == 2){
                 valor *= 100;
@@ -710,8 +802,7 @@ function formatStringVrv(value, eixo, vrv){
 
     }
     string = prefixo+formatDecimalLimit(valor, 2)+sufixo;
-    $.ajaxSetup({async: true});
-
+    
     return string;
 }
 
@@ -1163,19 +1254,21 @@ var tooltip = (function(){
 			// create all elements passed via array: arr
             createElements(d, arr);
             // graph position on screen
+            
             // console.log($('.container'))
 			var chartOffset = $('.container').offset(),
 				leftOffset = chartOffset.left,
 				leftOffsetEnd = leftOffset+$('.container').width(),
 				topOffset = chartOffset.top,
-				bottomOffset = topOffset + $('.container').height();
+                bottomOffset = topOffset + $('.container').height();
+
 			// tooltip dimensions
-			var tooltipWidth = $('.tooltip').width();
+            var tooltipWidth = $('.tooltip').width();
 			/*== posição do tooltip ==*/
 			var xPosition = d3.event.pageX-leftOffset+30;
 			var xPositionEnd = xPosition+tooltipWidth;
-			var yPosition = d3.event.pageY -topOffset+5;
-
+            var yPosition = d3.event.pageY -topOffset+5;
+            
 			// if tooltips final position is outside screen boundries
 			if(xPositionEnd>leftOffsetEnd){
 				xPosition = xPosition - tooltipWidth - 30; /* altera a posição */
@@ -1235,9 +1328,6 @@ var tooltip = (function(){
             // shows tooltip
             d3.select(".tooltip").classed("none", false);
         };
-
-
-
 		/*-----------------------------------------------------------------------------
 			Função: hideTooltip
 				esconde o element tooltip
@@ -1648,4 +1738,36 @@ function getSubdegId(deg, subdeg) {
             break;
 
     }
+}
+
+function getOcpId(ocp) {
+    switch (ocp) {
+        case 'Relacionadas': return 1;
+        case 'Culturais': return 2;
+    }
+}
+
+function getCadABVId(cad) {
+    switch (cad) {
+        case 'Arq e D': return 1;
+        case 'Artes': return 2;
+        case 'Audio': return 3;
+        case 'Cult. Dig.': return 4;
+        case 'Edit.': return 5;
+        case 'Edu. Art.': return 6;
+        case 'Entret.': return 7;
+        case 'Música': return 8;
+        case 'Patrimônio': return 9;
+        case 'Publ.': return 10;
+    }
+}
+
+function isIHHorC4var(){
+
+    return   ((parameters.eixo == 0 && (parameters.var == 10 || parameters.var == 11 || parameters.var == 12 || parameters.var == 13)) ||
+             (parameters.eixo == 1 && (parameters.var == 12 || parameters.var == 13 || parameters.var == 14 || parameters.var == 15)) ||
+             (parameters.eixo == 2 && (parameters.var == 10 || parameters.var == 15 || parameters.var == 16)) ||
+             (parameters.eixo == 3 && (parameters.var == 8)))
+
+
 }

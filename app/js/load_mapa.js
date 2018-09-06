@@ -25,13 +25,11 @@ function create_mapa(mapa_box, mapa){
     var info = [];
 
     Object.keys(mapa).forEach(function(key) {
-
         info.push(mapa[key]);
         if(parameters.eixo == 2 && parameters.var == 17)
             return dict[mapa[key].id] = {id:mapa[key].id, SouN:mapa[key].SouN, uf:mapa[key].uf, valor:mapa[key].valor, ano:mapa[key].ano, percentual:mapa[key].percentual, taxa:mapa[key].taxa};
         else
             return dict[mapa[key].id] = {id:mapa[key].id, uf:mapa[key].uf, valor:mapa[key].valor, ano:mapa[key].ano, percentual:mapa[key].percentual, taxa:mapa[key].taxa};
-
     });
 
     //carrega estados JSON
@@ -282,7 +280,6 @@ function create_mapa(mapa_box, mapa){
     updateData('mapa', dict[parameters.uf], dict);
     data_mapa = mapa;
     
-    
 }
 
 function update_mapa(mapa_box, mapa){
@@ -291,13 +288,11 @@ function update_mapa(mapa_box, mapa){
     d3.json("./data/br-min.json", function(data){
         br_states = data;
     })
-
-
     var corEixo = window.COLORS['eixo'][parameters.eixo].color;
     
 	var dict = {};
     var info = [];
-    
+
     Object.keys(mapa).forEach(function(key) {
         info.push(mapa[key]);
         if(parameters.eixo == 2 && parameters.var == 17)
@@ -477,19 +472,8 @@ function loadTooltip_mapa(d, dict, eixo, vrv){
 
     if(eixo == 0) {
 
-        var valorTooltip = 0;
-
-        var array = ['1', '2', '4', '5', '6', '7' , '8'];
-        var array100 = ['3', '9'];
-
-
-        if(array.indexOf(vrv) != -1){
-            valorTooltip = dict[d.id].valor;
-        }
-        else if (array100.indexOf(vrv) != -1){
-            valorTooltip = dict[d.id].valor*100;
-        }
-
+        var valorTooltip = dict[d.id].valor;
+ 
         tooltipInstance.showTooltip(d, [
             ["title", d['properties']['name']],
             ["", formatTextVrv(valorTooltip, eixo, vrv)]
@@ -498,43 +482,13 @@ function loadTooltip_mapa(d, dict, eixo, vrv){
     }
     else if(eixo == 1){
 
-
-        var valorTooltip = 0;
-
-        var array = ['1', '4', '5', '6', '7', '8', '9', '10', '11']
-        var array100 = []
-
-        var arrayPercentual = [];
-        if(array.indexOf(vrv) != -1){
-            valorTooltip = dict[d.id].valor;
-        }
-        else if (array100.indexOf(vrv) != -1){
-            valorTooltip = dict[d.id].valor*100;
-        }
-
+        var valorTooltip = dict[d.id].valor;
 
         tooltipInstance.showTooltip(d, [
             ["title", d['properties']['name']],
-            ["", formatTextVrv(valorTooltip, eixo, vrv)],
-            //["", formatDecimalLimit(dict[d.id].percentual*100, 2) + "%"],
-            //["", formatDecimalLimit(dict[d.id].taxa, 2)],
+            ["", formatTextVrv(valorTooltip, eixo, vrv)]
         ]);
 
-        if(parameters.var == 2){
-            if(url['ocp'] == 0){
-                tooltipInstance.showTooltip(d, [
-                    ["title", d['properties']['name']],
-                    ["", formatTextVrv(dict[d.id].valor*10000, eixo, vrv)]
-                ]);
-            }
-            else{
-                tooltipInstance.showTooltip(d, [
-                    ["title", d['properties']['name']],
-                    ["", formatTextVrv(dict[d.id].valor*100, eixo, vrv)]
-                ]);
-            }
-
-        }
     }
     else if(eixo == 2){
 

@@ -129,7 +129,6 @@ i.color {
 span.opt{
 	vertical-align: middle;
 	width: 100%;
-	cursor: pointer;
 	padding-left: 5px;
 	padding-right: 5px;
 	font-size: 10px;
@@ -571,8 +570,18 @@ video::-webkit-media-controls {
 	text-transform: uppercase;
 	font-weight: bold;
 	letter-spacing: 2px;
+}
 
+#title-view-scc span, #title-view-leg-scc span, #title-view-leg-scc-donut span {
+	display: flex;
+	flex-flow: row;
+	padding-top: -5px;
+	
+	
+}
 
+#title-view-scc span i, #title-view-leg-scc span i, #title-view-leg-scc-donut span i{
+	margin-right: 3px;
 }
 
 #title-view-leg-scc-donut{
@@ -677,7 +686,7 @@ ul.var-list li{
 }
 
 .destacado-scc {
-	stroke:	#555 !important;
+	stroke:	#555;
 	stroke-width: 1px;
 }
 .container {
@@ -706,6 +715,7 @@ article.results-article div.results-content{
 	height: 100%;
 	width: 100%;
 }
+
 .desc-chart .title{
 	margin-bottom: 40px;
 	margin-top: 50px;
@@ -824,7 +834,7 @@ article.results-article div.results-content{
 
 #menu-view .view-title-leg{
 	margin-top: 0px;
-	font-size: 18px;
+	font-size: 20px;
 }
 
 .view-title-leg{
@@ -1716,7 +1726,7 @@ button.opt.active{
 		width: 100%;
 	}
 
-	#containerTree *{
+	#containerTree .view-title, #containerTree #view_box_scc, #containerTree #menu-view{
 		width: 100%;
 	}
 
@@ -1741,11 +1751,13 @@ button.opt.active{
 	}
 
 	#title-view-leg-scc{
-		height: 100px;
+		height: 120px;
 		padding-top: 0;
 
 		display: flex;
 		flex-flow: column wrap;
+
+		margin-bottom: 10px;
 
 	}
 

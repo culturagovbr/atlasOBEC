@@ -20,10 +20,10 @@ parameters.eixo = indexEixo(parameters.eixo.replace(/#.*/, ''));
 PT_BR = [];
 COLORS = [];
 URL_PARAM = $.param(parameters);
-br_states = []
-anos_default = []
-data_var_ant = []
-view_box1_ant = ''
+br_states = [];
+anos_default = [];
+data_var_ant = [];
+view_box1_ant = '';
 
 VIEWS = {
     "barras": function (box, data, update){
@@ -141,6 +141,8 @@ $.when($.get('data/pt-br.json'),
         initTitleBox(index_view_box1, 0, 0);
         updateTitleBox();
 
+        changeDownloadURL(window.location.href, window.location.hash.substring(1));
+        
         if(parameters.eixo == 3){
             if(view_box1 == "mapa-mundi"){
                 view_box1 = "mapa";
@@ -158,13 +160,14 @@ $.when($.get('data/pt-br.json'),
                     VIEWS[view_box1].call(this, "#view_box", json);
                 })    
             }
+
             if(view_box2 == ""){
                 $("#view_box_barras svg").remove()
             } else {
                 d3.json("./db/json_" + view_box2 + ".php?" + URL_PARAM + "&uos=" + views_parameters["#view_box_barras"].uos, function (json) {
                     VIEWS[view_box2].call(this, "#view_box_barras", json);
                 })
-            }
+            }          
             
             if(view_box3 == ""){
                 $("#view_box_scc svg").remove()
@@ -174,9 +177,10 @@ $.when($.get('data/pt-br.json'),
                 })
             }
 
-        })
-        
+           
+            
 
+        })
     })
 
 function updateParameters(){
@@ -207,10 +211,6 @@ function updateParameters(){
     parameters.eixo = indexEixo(parameters.eixo.replace(/#.*/, ''));
 
     URL_PARAM = $.param(parameters);
-
-    
-   
-
 }
 
 function updateSelectAnos(){
@@ -247,7 +247,6 @@ function updateSelectAnos(){
                     text: d
                 }))
             }
-            
         })
         $(this).val(parameters.ano);
     });
@@ -401,7 +400,6 @@ function loadViews(){
 
 
     })
-
 }
 
 function updateViews(){
@@ -409,6 +407,7 @@ function updateViews(){
     updateParameters();
     updateSelectAnos();
     loadViews();
+    changeDownloadURL(window.location.href, window.location.hash.substring(1));
 
 }
 

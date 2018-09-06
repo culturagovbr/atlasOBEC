@@ -21,9 +21,6 @@ function configInfoDataBoxMapa(dados, dict) {
         else{
             $(".setor-value").css("display", "none")
         }
-
-
-
     }
     else if(parameters.eixo == 1){
 
@@ -43,12 +40,16 @@ function configInfoDataBoxMapa(dados, dict) {
 
     }
     else if(parameters.eixo == 2){
-
-
-        if(parameters.cad == 0 && parameters.uf != 0 && parameters.var < 18){
+         if(parameters.var == 17){
+            if(dados.SouN && dados.valor == 0)
+                setIntegerValueData('Indisponível');
+            else
+                setIntegerValueData(dados.valor);
+        }
+        else if(parameters.cad == 0 && parameters.uf != 0 && parameters.var < 18){
             setPercentValueData(dados.percentual);
         }
-
+        
     }
     else if(parameters.eixo == 3){
 
@@ -63,7 +64,6 @@ function configInfoDataBoxTreemapRegion(dados) {
 }
 
 function configInfoDataBoxTreemapSCC(dados) {
-
 
     if(parameters.eixo == 0){
 
@@ -83,7 +83,7 @@ function configInfoDataBoxTreemapSCC(dados) {
     }
     if(parameters.eixo == 1){
 
-        if(((parameters.cad == 0 && parameters.ocp == 0)|| parameters.ocp == 3)  && parameters.deg == 0){
+        if(((parameters.cad == 0 && parameters.ocp == 0) || parameters.ocp == 3)  && parameters.deg == 0){
 
             if(parameters.uf == 0 ){
                 setPercentValueData(1)
@@ -101,7 +101,7 @@ function configInfoDataBoxTreemapSCC(dados) {
 
             }
 
-            if(parameters.deg != 0 && parameters.cad != 0){
+            if(parameters.deg != 0 && parameters.cad != 0 || parameters.deg == 0){
                 setTerceiroValueData(dados.percent_uf)
             }
         }
@@ -117,9 +117,7 @@ function configInfoDataBoxTreemapSCC(dados) {
         else if(parameters.cad != 0) {
 
             setPercentValueData(dados.percent);
-
-
-
+        
         }
 
     }
@@ -132,23 +130,17 @@ function configInfoDataBoxBarras(dados, valor, uos) {
 
     if(parameters.eixo == 0){
 
-        if(parameters.var == 9){
-            valor *= 100;
-            setIntegerValueData(valor)
-
-        }
-        else if(parameters.var >= 10){
+        if(parameters.var >= 10){
             if(uos == 1){
-                setPercentValueData(valor)
+                setPercentValueData(valor);
             }
             else if(uos == 0){
-                setIntegerValueData(valor)
+                setIntegerValueData(valor);
             }
         }
         else{
             setIntegerValueData(valor)
             if(parameters.cad == 0 && parameters.deg > 0 && parameters.uf > 0){
-                console.log(valor/total_deg[parameters.ano])
                 setPercentValueData(valor/total_deg[parameters.ano])
             }
         }
@@ -156,7 +148,6 @@ function configInfoDataBoxBarras(dados, valor, uos) {
 
     }
     else if(parameters.eixo == 1){
-
 
         if(parameters.var == 6){
             if(uos == 0){
@@ -174,10 +165,10 @@ function configInfoDataBoxBarras(dados, valor, uos) {
         }
         else{
            setIntegerValueData(valor)
-
        }
 
     }
+
     else if(parameters.eixo == 2){
 
         if(parameters.var == 10 || parameters.var == 15 || parameters.var == 16){
@@ -189,17 +180,17 @@ function configInfoDataBoxBarras(dados, valor, uos) {
             }
         }
         else if(parameters.var >= 18 && uos == 1){
-
             setPercentValueData(valor)
+        }
+        else if(parameters.var == 17){
+            setIntegerValueData(valor)
         }
         else{
             setIntegerValueData(valor)
 
         }
-
-
-
     }
+
     else if(parameters.eixo == 3){
         var mundo = parameters.mundo;
 
@@ -254,25 +245,29 @@ function configInfoDataBoxBarrasStacked(dados, valor, soma) {
 /*  --- SETTERS --- */
 
 function setIntegerValueData(value) {
-    var description = PT_BR
+    var description = PT_BR;
 
     var result = getDataVar(description, parameters.eixo, parameters.var);
     sufixo = result.sufixo_valor;
     prefixo = result.prefixo_valor;
-    valor = value;
+    var valor;
 
-    var literal = formatDecimalLimit(valor, 2);
-
-    if(parameters.eixo == 1 && parameters.var == 2){
-        literal = formatDecimalLimit(valor*100, 4);
+    if(value != 'Indisponível'){
+        valor = normalizeValue(value, sufixo);
+    
+        if(parameters.eixo == 1 && (parameters.var == 2 || parameters.var == 9)){
+            var literal = formatDecimalLimit(valor, 4);
+        } else {
+            var literal = formatDecimalLimit(valor, 2);
+        }
     }
-    else if(parameters.eixo == 1 && parameters.var == 9){
-        literal = formatDecimalLimit(valor, 4);
-    }
+        
 
     estado = $(".state-title").first().text()
 
-    $(".integer-value").first().find(".number").first().html(prefixo+literal+sufixo);
+    if(value != 'Indisponível') $(".integer-value").first().find(".number").first().html(prefixo+literal+sufixo);
+    else $(".integer-value").first().find(".number").first().html(value);
+
     var doc =  $(".integer-value").first().find(".number").first();
 
     $('.font-title').html("Fonte(s): "+result.fontes);
@@ -286,7 +281,7 @@ function setPercentValueData(valor) {
         valor = 0;
     }
 
-    var percentual = formatDecimalLimit(valor*100, 2) + "%";
+    var percentual;
 
     if(parameters.eixo == 0){
 
@@ -295,6 +290,9 @@ function setPercentValueData(valor) {
         }
         else if(parameters.var >= 10){
             percentual = formatDecimalLimit(valor, 2);
+        }
+        else {
+            percentual = formatDecimalLimit(valor*100, 2) + "%";
         }
 
         $(".percent-value").first().find(".number").first().html(percentual);
@@ -308,6 +306,9 @@ function setPercentValueData(valor) {
         else if(parameters.var == 2 || parameters.var == 11 || parameters.var == 10 ||  parameters.var == 9  || parameters.var == 4 || parameters.var == 5 || parameters.var == 6 || parameters.var == 8){
             percentual = "";
         }            
+        else{
+            percentual = formatDecimalLimit(valor*100, 2) + "%";
+        }
         
         $(".percent-value").first().find(".number").first().html(percentual);
         var doc =  $(".percent-value").first().find(".number").first();
@@ -375,17 +376,24 @@ function setTerceiroValueData(value, uos){
         }
     }
     else if(parameters.eixo == 1){
-        ocp = $(".bread-select[data-id=ocp]").val() == undefined ? 0 : $(".bread-select[data-id=ocp]").val()
-        if(parameters.var == 1 && (parameters.cad > 0 || parameters.ocp != 0 && parameters.ocp != 3) && parameters.uf > 0){
-            $(".setor-value").first().find(".number").first().text(formatDecimalLimit(value*100, 2)+'%');
-            $(".setor-value").first().css("display", "flex");
 
-            doc = $(".setor-value").first().find(".number").first();
-            setMaxFontSize(doc);
-        }
-        else{
+        if(parameters.deg == 0){
             $(".setor-value").first().css("display", "none");
         }
+        else{
+            ocp = $(".bread-select[data-id=ocp]").val() == undefined ? 0 : $(".bread-select[data-id=ocp]").val()
+            if(parameters.var == 1 && (parameters.cad > 0 || parameters.ocp != 0 && parameters.ocp != 3) && parameters.uf > 0){
+                $(".setor-value").first().find(".number").first().text(formatDecimalLimit(value*100, 2)+'%');
+                $(".setor-value").first().css("display", "flex");
+    
+                doc = $(".setor-value").first().find(".number").first();
+                setMaxFontSize(doc);
+            }
+            else{
+                $(".setor-value").first().css("display", "none");
+            }
+        }
+        
     }
     else if(parameters.eixo == 3){
         if(parameters.var == 5 || parameters.var == 8){
@@ -419,7 +427,6 @@ function updateData(view, dados, valor, uos){
     var vrvViews = PT_BR.var[eixo].filter(filterByID)[0].views;
 
     var data = {}
-
 
     function filterByID(item) {
         if (item.id == vrv) {
